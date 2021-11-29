@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# this installs the virtualenv module
+python3.7 -m pip install virtualenv
+# this creates a virtual environment named "env"
+virtualenv -p python3.7 env
+# this activates the created virtual environment
+source env/bin/activate
+# updates pip
+pip install -U pip
+# this installs the required python packages to the virtual environment
+pip install -r requirements.txt
+# installs rpath for torch
+install_name_tool -add_rpath /usr/lib $PWD/env/lib/python3.7/site-packages/torch/_C.cpython-37m-darwin.so
+
+echo created environment
