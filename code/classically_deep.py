@@ -3,7 +3,7 @@ import numpy as np
 from intervaltree import Interval,IntervalTree
 import os
 import torch
-from model import GAN
+from model import VAE
 
 # def train(model, train_loader):
 #     """
@@ -41,6 +41,16 @@ from model import GAN
 #     print(f"training batch \033[0;32m{i + 1}\033[0m/\033[0;32m{i + 1}\ntraining complete!\033[0m"), end = "\n")
 #     return total_loss
 
+# def organize_data(train_data):
+#
+#     ids = list(train_data.keys())
+#
+#     for id in ids:
+#         _, labels = sorted(train_data[id])
+
+
+
+
 
 def main():
 
@@ -52,17 +62,28 @@ def main():
     train_data = np.load('data/musicnet.npz', allow_pickle = True, encoding = 'latin1')
 
 
-    ids = list(train_data.keys())
 
-    samples, labels = train_data['2494']
 
-    print(type(samples))
-    print(type(labels))
+    _, labels = train_data['2494']
 
-    # Get an instance of GAN
-    # model = GAN();
+    # (start,end,(instrument,note,measure,beat,note_value)) =
+    print(sorted(labels[100000])[:][:][2][1])
+
+    # print(instrument.shape)
+
+    # print(' -- An example of a MusicNet label -- ')
+    # print(' Start Time:                          ' + str(start))
+    # print(' End Time:                            ' + str(end))
+    # print(' Instrument (MIDI instrument code):   ' + str(instrument))
+    # print(' Note (MIDI note code):               ' + str(note))
+    # print(' Measure:                             ' + str(measure))
+    # print(' Beat (0 <= beat < 1):                ' + str(beat))
+    # print(' Note Value:                          ' + str(note_value))
+
+    # Get an instance of VAE
+    # model = VAE();
     #
-    # # Train GAN
+    # # Train VAE
     # for epoch_id in range(args.num_epochs):
     #     total_loss = train_vae(model, train_dataset, args, is_cvae=args.is_cvae)
     #     print(f"Train Epoch: {epoch_id} \tLoss: {total_loss/len(train_dataset):.6f}")
