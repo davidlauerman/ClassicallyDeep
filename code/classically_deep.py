@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from intervaltree import Interval,IntervalTree
 import os
 import torch
 from model import GAN
@@ -39,38 +40,26 @@ from model import GAN
 #
 #     print(f"training batch \033[0;32m{i + 1}\033[0m/\033[0;32m{i + 1}\ntraining complete!\033[0m"), end = "\n")
 #     return total_loss
-#
-# def load_musicnet(batch_size, buffer_size=1024):
-#     """
-#     Load and preprocess MNIST dataset from tf.keras.datasets.mnist.
-#
-#     Inputs:
-#     - batch_size: An integer value of batch size.
-#     - buffer_size: Buffer size for random sampling in tf.data.Dataset.shuffle().
-#
-#     Returns:
-#     - train_dataset: A tf.data.Dataset instance of MNIST dataset. Batching and shuffling are already supported.
-#     """
-#     mnist = tf.keras.datasets.mnist
-#     (x_train, y_train), _ = mnist.load_data()
-#     x_train = x_train / 255.0
-#     x_train = np.expand_dims(x_train, axis=1)  # [batch_sz, channel_sz, height, width]
-#     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-#     train_dataset = train_dataset.shuffle(buffer_size=buffer_size).batch(batch_size, drop_remainder=True)
-#     return train_dataset
+
 
 def main():
 
-    x = torch.rand(5, 3)
-    print(x)
+    # suppress messages from torch
+    os.environ["PYTORCH_JIT_LOG_LEVEL"] = "2"
 
-    # # suppress messages from tf
-    # os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-    #
-    # # Load MusicNet dataset
-    # train_dataset = load_musicnet(args.batch_size)
-    #
-    # # Get an instance of GAN
+    # Load MusicNet dataset from .npz file
+    # train_data is a dictionary of arrays, indexed 0-329
+    train_data = np.load('data/musicnet.npz', allow_pickle = True, encoding = 'latin1')
+
+
+    ids = list(train_data.keys())
+
+    samples, labels = train_data['2494']
+
+    print(type(samples))
+    print(type(labels))
+
+    # Get an instance of GAN
     # model = GAN();
     #
     # # Train GAN
