@@ -55,7 +55,9 @@ def organize_song(id, length, labels):
         for note_package in range(len(labels[timestep])):
             song[timestep][sorted_labels[note_package][2][1]] = 1
 
-    np.savez_compressed(f'data/song_data/song_{id}.npz', song)
+
+
+    np.savez_compressed(f'data/song_data/song_{id}.npz', song = song)
     return song
 
 
@@ -75,6 +77,10 @@ def main():
     for id in ids:
         audio, labels = train_data[id]
         labels = organize_song(id, len(audio), labels)
+
+    data = np.load('data/song_data/song_1788.npz')
+
+    print(data['song'].shape)
 
 
 
