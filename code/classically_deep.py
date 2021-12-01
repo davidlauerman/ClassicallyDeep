@@ -41,13 +41,22 @@ from model import VAE
 #     print(f"training batch \033[0;32m{i + 1}\033[0m/\033[0;32m{i + 1}\ntraining complete!\033[0m"), end = "\n")
 #     return total_loss
 
-# def organize_data(train_data):
-#
-#     ids = list(train_data.keys())
-#
-#     for id in ids:
-#         _, labels = sorted(train_data[id])
+def organize_song(id, length, labels):
 
+    song = np.zeros((length, 128))
+
+    # looping through every single time step
+    for timestep in range(length):
+        print(f"timestep \033[0;33m{timestep+1}\033[0m/\033[0;32m{length}\033[0m", end = "\r")
+
+        sorted_labels = sorted(labels[timestep])
+
+        # extract all playing notes at a given timestep
+        for note_package in range(len(labels[timestep])):
+            song[timestep][sorted_labels[note_package][2][1]] = 1
+
+    np.savez_compressed(f'data/song_data/song_{id}.npz', song)
+    return song
 
 
 
@@ -61,24 +70,15 @@ def main():
     # train_data is a dictionary of arrays, indexed 0-329
     train_data = np.load('data/musicnet.npz', allow_pickle = True, encoding = 'latin1')
 
+    ids = list(train_data.keys())
+
+    for id in ids:
+        audio, labels = train_data[id]
+        labels = organize_song(id, len(audio), labels)
 
 
 
-    _, labels = train_data['2494']
 
-    # (start,end,(instrument,note,measure,beat,note_value)) =
-    print(sorted(labels[100000])[:][:][2][1])
-
-    # print(instrument.shape)
-
-    # print(' -- An example of a MusicNet label -- ')
-    # print(' Start Time:                          ' + str(start))
-    # print(' End Time:                            ' + str(end))
-    # print(' Instrument (MIDI instrument code):   ' + str(instrument))
-    # print(' Note (MIDI note code):               ' + str(note))
-    # print(' Measure:                             ' + str(measure))
-    # print(' Beat (0 <= beat < 1):                ' + str(beat))
-    # print(' Note Value:                          ' + str(note_value))
 
     # Get an instance of VAE
     # model = VAE();
