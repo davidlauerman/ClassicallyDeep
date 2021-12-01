@@ -43,6 +43,7 @@ from model import VAE
 
 def organize_song(id, length, labels):
 
+    print(f"chronicling song {id}")
     song = np.zeros((length, 128))
 
     # looping through every single time step
@@ -56,8 +57,10 @@ def organize_song(id, length, labels):
             song[timestep][sorted_labels[note_package][2][1]] = 1
 
 
-
+    print(f"\nnow saving song {id}", end = "\n")
     np.savez_compressed(f'data/song_data/song_{id}.npz', song = song)
+    print(f"song saved successfully.")
+
     return song
 
 
@@ -76,7 +79,7 @@ def main():
 
     for id in ids:
         audio, labels = train_data[id]
-        labels = organize_song(id, len(audio), labels)
+        song = organize_song(id, len(audio), labels)
 
     data = np.load('data/song_data/song_1788.npz')
 
