@@ -3,9 +3,9 @@ import numpy as np
 import os
 import torch
 
-class VAE():
+class RNN():
     def __init__(self, input_size):
-        super(VAE, self).__init__()
+        super(RNN, self).__init__()
 
         pass
 

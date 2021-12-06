@@ -3,7 +3,17 @@ import numpy as np
 from intervaltree import Interval,IntervalTree
 import os
 import torch
-from model import VAE
+import random
+from model import RNN
+
+DEFAULT_HZ = 44100
+STEP_SIZE = 4410
+WINDOW_SIZE = 50
+STRIDE_SIZE = 50
+NUM_SEC = 30
+NUM_NOTES = 128
+SAMPLES_PER_SONG = int((DEFAULT_HZ / STEP_SIZE) * NUM_SEC)
+NUM_SONGS = 100
 
 # def train(model, train_loader):
 #     """
@@ -43,23 +53,18 @@ from model import VAE
 
 def organize_song(id, length, labels):
 
-    print(f"chronicling song {id}")
-    song = np.zeros((length, 128))
+    song = np.zeros((SAMPLES_PER_SONG, NUM_NOTES))
+
+    start_point = random.randint(0, length - DEFAULT_HZ * NUM_SEC)
 
     # looping through every single time step
-    for timestep in range(length):
-        print(f"timestep \033[0;33m{timestep+1}\033[0m/\033[0;32m{length}\033[0m", end = "\r")
+    for timestep in range(start_point, start_point + DEFAULT_HZ * NUM_SEC, STEP_SIZE):
 
         sorted_labels = sorted(labels[timestep])
 
         # extract all playing notes at a given timestep
         for note_package in range(len(labels[timestep])):
-            song[timestep][sorted_labels[note_package][2][1]] = 1
-
-
-    print(f"\nnow saving song {id}", end = "\n")
-    np.savez_compressed(f'data/song_data/song_{id}.npz', song = song)
-    print(f"song saved successfully.")
+            song[int((timestep - start_point)/STEP_SIZE)][sorted_labels[note_package][2][1]] = 1
 
     return song
 
@@ -71,30 +76,60 @@ def main():
     # suppress messages from torch
     os.environ["PYTORCH_JIT_LOG_LEVEL"] = "2"
 
+    # create random seed based on system time
+    random.seed()
+
     # Load MusicNet dataset from .npz file
-    # train_data is a dictionary of arrays, indexed 0-329
+    # train_data is a dictionary of arrays, indexed by ids
     train_data = np.load('data/musicnet.npz', allow_pickle = True, encoding = 'latin1')
 
+    # get ids to iterate through ids
     ids = list(train_data.keys())
 
-    for id in ids:
-        audio, labels = train_data[id]
-        song = organize_song(id, len(audio), labels)
+    save_mode = True
+    assert 1 <= NUM_SONGS <= 330
 
-    data = np.load('data/song_data/song_1788.npz')
+    if save_mode:
+        i = 0
+        for id in ids:
+            if i == NUM_SONGS:
+                break
 
-    print(data['song'].shape)
+            audio, labels = train_data[id]
+
+            if i == 0:
+                print(f"chronicling song \033[93m{i + 1}\033[0m/\033[92m{NUM_SONGS}\033[0m", end = "\r")
+                SONGS = organize_song(id, len(audio), labels)
+            else:
+                print(f"chronicling song \033[93m{i + 1}\033[0m/\033[92m{NUM_SONGS}\033[0m", end = "\r")
+                SONGS = np.vstack((SONGS, organize_song(id, len(audio), labels)))
+
+            i = i + 1
+
+        print(f"chronicling song \033[92m{NUM_SONGS}\033[0m/\033[92m{NUM_SONGS}\033[0m", end = "\n")
+        print("saving song array...")
+        np.savez_compressed(f'data/songs.npz', arr = SONGS)
+        print("song array saved successfully!")
+
+        return
+
+    # otherwise, load data and create model
+    print("loading song array...")
+    data = np.load('data/songs.npz')
+    print("song array loaded successfully")
+
+    print(data['arr'].shape)
 
 
 
 
 
-    # Get an instance of VAE
-    # model = VAE();
+    # Get an instance of RNN
+    # model = RNN();
     #
-    # # Train VAE
+    # # Train RNN
     # for epoch_id in range(args.num_epochs):
-    #     total_loss = train_vae(model, train_dataset, args, is_cvae=args.is_cvae)
+    #     total_loss = train(model, train_dataset, args)
     #     print(f"Train Epoch: {epoch_id} \tLoss: {total_loss/len(train_dataset):.6f}")
 
 if __name__ == "__main__":
