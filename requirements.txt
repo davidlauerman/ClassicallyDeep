@@ -1,5 +1,7 @@
 intervaltree==3.1.0
 Markdown==3.3.4
+matplotlib==3.1.1
+MIDIUtil == 1.2.1
 numpy==1.19.5
 random2 == 1.0.1
 --f https://download.pytorch.org/whl/torch_stable.html
